@@ -13,8 +13,8 @@ app.log
 # Output directory
 output/
 
-# Email attachment PDFs (binary files, not source)
-*.pdf
+# # Email attachment PDFs (binary files, not source)
+# *.pdf
 
 # Temp files
 cp.txt
