@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hotel Booking Confirmation</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 10.5pt;
+            color: #1a1a2e;
+            line-height: 1.5;
+            background: #fff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* ===== LETTERPAD HEADER ===== */
+        .letterpad-header {
+            text-align: center;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #1a1a2e;
+            margin-bottom: 16px;
+        }
+
+        .letterpad-title {
+            font-size: 22pt;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #1a1a2e;
+            text-transform: uppercase;
+        }
+
+        .letterpad-subtitle {
+            font-size: 9pt;
+            color: #6c757d;
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        .letterpad-contact {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 8px;
+            font-size: 9pt;
+            color: #495057;
+            flex-wrap: wrap;
+        }
+
+        .letterpad-contact span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .letterpad-gst {
+            font-size: 8.5pt;
+            color: #6c757d;
+            margin-top: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ===== HIGHLIGHT BAR: HOTEL + DATES ===== */
+        .highlight-bar {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 16px 22px;
+            margin-bottom: 12px;
+        }
+
+        .highlight-hotel {
+            font-size: 18pt;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .highlight-address {
+            font-size: 9.5pt;
+            color: #adb5bd;
+            margin-bottom: 12px;
+        }
+
+        .highlight-dates-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+        }
+
+        .highlight-dates {
+            display: flex;
+            gap: 30px;
+        }
+
+        .date-block {
+            text-align: center;
+        }
+
+        .date-block .label {
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #adb5bd;
+            margin-bottom: 4px;
+        }
+
+        .date-block .value {
+            font-size: 14pt;
+            font-weight: 700;
+        }
+
+        .date-block .time {
+            font-size: 9pt;
+            color: #adb5bd;
+            margin-top: 2px;
+        }
+
+        .highlight-arrow {
+            font-size: 20pt;
+            color: #adb5bd;
+            align-self: center;
+            padding-top: 14px;
+        }
+
+        .highlight-nights {
+            text-align: right;
+            font-size: 10pt;
+            color: #adb5bd;
+        }
+
+        .highlight-nights strong {
+            color: #fff;
+            font-size: 16pt;
+            display: block;
+        }
+
+        /* ===== GUEST LIST STRIP ===== */
+        .guest-strip {
+            background: #f8f9fa;
+            border-left: 4px solid #1a1a2e;
+            padding: 10px 18px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .guest-strip .label {
+            font-size: 9pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6c757d;
+            white-space: nowrap;
+        }
+
+        .guest-strip .names {
+            font-size: 12pt;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        /* ===== BOOKING META ===== */
+        .booking-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            margin-bottom: 10px;
+        }
+
+        .booking-title {
+            font-size: 14pt;
+            font-weight: 800;
+            color: #1a1a2e;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .booking-id {
+            font-size: 10pt;
+            color: #495057;
+        }
+
+        .booking-id strong {
+            color: #1a1a2e;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ===== FORM TABLE ===== */
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+            font-size: 10pt;
+        }
+
+        .form-table td {
+            padding: 6px 10px;
+            vertical-align: top;
+        }
+
+        .form-label {
+            width: 22%;
+            font-weight: 700;
+            color: #495057;
+            font-size: 9pt;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .form-value {
+            width: 28%;
+            font-weight: 600;
+            color: #1a1a2e;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .form-value-wide {
+            width: 50%;
+            font-weight: 600;
+            color: #1a1a2e;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .form-table tr:nth-child(odd) {
+            background: #fafbfc;
+        }
+
+        /* ===== INFO BOXES ===== */
+        .info-box {
+            background: #f8f9fa;
+            border-left: 3px solid #1a1a2e;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            font-size: 9.5pt;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        .info-box strong {
+            color: #1a1a2e;
+        }
+
+        /* ===== REF ROW ===== */
+        .ref-row {
+            text-align: center;
+            font-size: 9pt;
+            color: #6c757d;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ===== REMARKS ===== */
+        .remarks {
+            border: 1px solid #ced4da;
+            padding: 12px 16px;
+            margin: 12px 0;
+            background: #fff;
+        }
+
+        .remarks-title {
+            font-size: 10pt;
+            font-weight: 700;
+            color: #1a1a2e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .remarks div {
+            font-size: 9.5pt;
+            color: #495057;
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+
+        .remarks div strong {
+            color: #1a1a2e;
+        }
+
+        /* ===== NOTES BOX ===== */
+        .notes-box {
+            border: 1px solid #ced4da;
+            margin-top: 12px;
+        }
+
+        .notes-title {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 8px 16px;
+            font-size: 9pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .notes-list {
+            list-style: none;
+            padding: 10px 16px;
+            margin: 0;
+            background: #fafbfc;
+        }
+
+        .notes-list li {
+            position: relative;
+            padding-left: 16px;
+            margin-bottom: 6px;
+            font-size: 9.5pt;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        .notes-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 12pt;
+        }
+
+        .notes-list li strong {
+            color: #1a1a2e;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer-bar {
+            margin-top: 16px;
+            border-top: 1px solid #ced4da;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 8pt;
+            color: #6c757d;
+        }
+
+        .footer-left {
+            max-width: 60%;
+        }
+
+        .footer-right {
+            text-align: right;
+        }
+
+        .footer-gst {
+            font-family: 'Courier New', monospace;
+            color: #495057;
+        }
+
+        /* ===== WRAPPER ===== */
+        .page-wrapper {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 10mm;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <!-- LETTERPAD HEADER -->
+    <div class="letterpad-header">
+        <div class="letterpad-title">Friendly Wings Travel</div>
+        <div class="letterpad-subtitle">International & Domestic Hotel Bookings</div>
+        <div class="letterpad-contact">
+            <span>✉ thamizh@friendlywings.com</span>
+            <span>☎ 8098597634, 9488493370</span>
+        </div>
+        <div class="letterpad-gst">GSTIN: 33BVWPT7026F1Z3</div>
+    </div>
+
+    <!-- HIGHLIGHT BAR: HOTEL + DATES -->
+    <div class="highlight-bar">
+        <div class="highlight-hotel">Himalayan Grand Resort & Spa</div>
+        <div class="highlight-address">Old Manali Road, Near Mall Road, Manali, Himachal Pradesh, India - 175131</div>
+        <div class="highlight-dates-row">
+            <div class="highlight-dates">
+                <div class="date-block">
+                    <div class="label">Check In</div>
+                    <div class="value">12 OCT 2026</div>
+                    <div class="time">After 02:00 PM</div>
+                </div>
+                <div class="highlight-arrow">→</div>
+                <div class="date-block">
+                    <div class="label">Check Out</div>
+                    <div class="value">15 OCT 2026</div>
+                    <div class="time">Before 11:00 AM</div>
+                </div>
+            </div>
+            <div class="highlight-nights">
+                <strong>3</strong>
+                Nights
+            </div>
+        </div>
+    </div>
+
+    <!-- GUEST LIST STRIP -->
+    <div class="guest-strip">
+        <div class="label">Guests</div>
+        <div class="names">Vinoth Kumar R · Gayathri S · Krishna K · Sathya P</div>
+    </div>
+
+    <!-- BOOKING META -->
+    <div class="booking-meta">
+        <div class="booking-title">Booking Confirmation</div>
+        <div class="booking-id">Booking ID: <strong>FWHTL982341</strong> &nbsp;|&nbsp; Ref: <strong>BKREF-445566</strong></div>
+    </div>
+
+    <!-- FORM TABLE -->
+    <table class="form-table">
+        <tr>
+            <td class="form-label">Client :</td>
+            <td class="form-value">Vinoth Kumar R</td>
+            <td class="form-label">Member ID :</td>
+            <td class="form-value">FW2026889</td>
+        </tr>
+        <tr>
+            <td class="form-label">Country :</td>
+            <td class="form-value">India</td>
+            <td class="form-label">Property :</td>
+            <td class="form-value">Himalayan Grand Resort</td>
+        </tr>
+        <tr>
+            <td class="form-label">Rooms :</td>
+            <td class="form-value">2</td>
+            <td class="form-label">Room Type :</td>
+            <td class="form-value">Deluxe Mountain View Room</td>
+        </tr>
+        <tr>
+            <td class="form-label">Adults :</td>
+            <td class="form-value">4</td>
+            <td class="form-label">Children :</td>
+            <td class="form-value">1</td>
+        </tr>
+        <tr>
+            <td class="form-label">Extra Beds :</td>
+            <td class="form-value">1</td>
+            <td class="form-label">Meals :</td>
+            <td class="form-value">Breakfast & Dinner</td>
+        </tr>
+        <tr>
+            <td class="form-label">Promotion :</td>
+            <td class="form-value">Summer Escape Offer</td>
+            <td class="form-label">Property Contact :</td>
+            <td class="form-value">+91 9812345678</td>
+        </tr>
+        <tr>
+            <td class="form-label">Hotel Contact :</td>
+            <td class="form-value">+91 9812345678</td>
+            <td colspan="2" style="font-size:9pt; color:#6c757d; vertical-align:middle; text-align:center;">
+                For full promotion details and conditions see confirmation email
+            </td>
+        </tr>
+    </table>
+
+    <!-- INFO BOXES -->
+    <div class="info-box">
+        <strong>Cancellation Policy:</strong> Free cancellation before 48 hours of check-in. Cancellation within 48 hours will incur 100% charge of total booking amount.
+    </div>
+
+    <div class="info-box">
+        <strong>Benefits Included:</strong> Free WiFi, Complimentary Breakfast, Early Check-in Subject to Availability, Free Parking
+    </div>
+
+    <!-- REF ROW -->
+    <div class="ref-row">Reference # for Guest: GUEST-998712</div>
+
+    <!-- REMARKS -->
+    <div class="remarks">
+        <div class="remarks-title">Remarks</div>
+        <div><strong>Special Request:</strong> Honeymoon room decoration requested.</div>
+        <div><strong>All special requests are subject to availability upon arrival.</strong></div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="notes-box">
+        <div class="notes-title">Important Notes</div>
+        <ul class="notes-list">
+            <li><strong>IMPORTANT:</strong> At check-in, you must present the credit card used to make this booking and a valid photo ID with the same name.</li>
+            <li>All rooms are guaranteed on the day of arrival. In the case of a no-show, your room(s) will be released and cancellation charges may apply.</li>
+            <li>In cases where Breakfast is included with the room rate, certain hotels may charge extra for children travelling with parents.</li>
+            <li>Early check-in and late checkout are subject to hotel availability.</li>
+        </ul>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-bar">
+        <div class="footer-left">
+            This is a computer-generated voucher and does not require a signature.<br>
+            For any assistance, contact us at thamizh@friendlywings.com or call 8098597634, 9488493370
+        </div>
+        <div class="footer-right">
+            <div class="footer-gst">GSTIN: 33BVWPT7026F1Z3</div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

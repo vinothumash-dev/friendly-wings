@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: friendly-wings-automation
+
+  datasource:
+    url: jdbc:h2:mem:friendlywings
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+friendlywings:
+  gmail:
+    username: vinothumash@gmail.com
+    # Use Gmail App Password - NOT your regular password
+    # Generate at: https://myaccount.google.com/apppasswords
+    password: zutg srrn okdn mkwv
+    host: imap.gmail.com
+    port: 993
+    protocol: imaps
+    poll-interval-minutes: 30
+    # Folder to check (INBOX, or a label like Bookings)
+    folder: INBOX
+    # If true, moves processed emails to a "Processed" folder
+    move-processed: true
+    processed-folder: Processed
+
+  output:
+    # Where generated PDFs are saved
+    directory: ./output
+
+  smtp:
+    # SMTP settings for sending voucher emails
+    host: smtp.gmail.com
+    port: 587
+    username: vinothumash@gmail.com
+    # Use the same Gmail App Password
+    password: zutg srrn okdn mkwv
+    auth: true
+    starttls: true
+
+  notification:
+    # Comma-separated list of recipient emails
+    recipients:
+      - vinothumash@gmail.com
+    subject-prefix: "[Friendly Wings] New Booking Voucher"
+    body-text: "Please find the attached booking voucher PDF."
+
+server:
+  port: 8080

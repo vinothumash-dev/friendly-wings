@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flight Ticket</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 10.5pt;
+            color: #1a1a2e;
+            line-height: 1.5;
+            background: #fff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* ===== LETTERPAD HEADER ===== */
+        .letterpad-header {
+            text-align: center;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #1a1a2e;
+            margin-bottom: 16px;
+        }
+
+        .letterpad-title {
+            font-size: 22pt;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #1a1a2e;
+            text-transform: uppercase;
+        }
+
+        .letterpad-subtitle {
+            font-size: 9pt;
+            color: #6c757d;
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        .letterpad-contact {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 8px;
+            font-size: 9pt;
+            color: #495057;
+            flex-wrap: wrap;
+        }
+
+        .letterpad-contact span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .letterpad-gst {
+            font-size: 8.5pt;
+            color: #6c757d;
+            margin-top: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ===== TICKET HEADER ===== */
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 12px;
+        }
+
+        .ticket-label {
+            font-size: 18pt;
+            font-weight: 800;
+            color: #1a1a2e;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .trip-id {
+            font-size: 10pt;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .trip-id strong {
+            color: #1a1a2e;
+        }
+
+        /* ===== ROUTE STRIP ===== */
+        .route-strip {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+        }
+
+        .route-cities {
+            font-size: 14pt;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .route-cities .arrow {
+            color: #adb5bd;
+            margin: 0 6px;
+        }
+
+        .route-date-main {
+            font-size: 11pt;
+            font-weight: 600;
+        }
+
+        /* ===== SEGMENT ===== */
+        .segment-card {
+            border: 1px solid #ced4da;
+            border-top: none;
+            background: #fff;
+        }
+
+        .segment-header {
+            background: #f8f9fa;
+            padding: 8px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .segment-label {
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6c757d;
+        }
+
+        .segment-number {
+            background: #1a1a2e;
+            color: #fff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9pt;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+
+        .airline-info {
+            text-align: right;
+        }
+
+        .airline-name {
+            font-weight: 700;
+            font-size: 10pt;
+            color: #1a1a2e;
+        }
+
+        .flight-number {
+            font-size: 9pt;
+            color: #6c757d;
+        }
+
+        /* ===== TIMELINE ===== */
+        .timeline-body {
+            padding: 16px 18px;
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+        }
+
+        .time-block {
+            flex: 1;
+            text-align: center;
+            padding: 0 6px;
+        }
+
+        .time-block.departure {
+            text-align: left;
+            padding-left: 0;
+        }
+
+        .time-block.arrival {
+            text-align: right;
+            padding-right: 0;
+        }
+
+        .time-code {
+            font-size: 20pt;
+            font-weight: 800;
+            color: #1a1a2e;
+            line-height: 1;
+        }
+
+        .time-value {
+            font-size: 12pt;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-top: 4px;
+        }
+
+        .time-date {
+            font-size: 9pt;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .time-airport {
+            font-size: 9pt;
+            color: #495057;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .time-airport strong {
+            color: #1a1a2e;
+        }
+
+        .duration-connector {
+            flex: 0 0 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
+            position: relative;
+        }
+
+        .duration-line {
+            width: 100%;
+            height: 2px;
+            background: #ced4da;
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .duration-line::before,
+        .duration-line::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .duration-line::before { left: 0; }
+        .duration-line::after { right: 0; }
+
+        .duration-text {
+            font-size: 10pt;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .duration-class {
+            font-size: 8pt;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .plane-icon {
+            position: absolute;
+            top: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12pt;
+            color: #495057;
+        }
+
+        /* ===== INFO BAR ===== */
+        .info-bar {
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding: 8px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 9pt;
+            color: #495057;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        /* ===== LAYOVER ===== */
+        .layover-strip {
+            background: #fff8e1;
+            border-left: 3px solid #ffc107;
+            border-right: 1px solid #ced4da;
+            border-bottom: 1px solid #ced4da;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10pt;
+            color: #856404;
+        }
+
+        .layover-text {
+            font-weight: 600;
+        }
+
+        .layover-details {
+            font-size: 9pt;
+            color: #a08030;
+            margin-left: auto;
+        }
+
+        /* ===== TRAVELLERS ===== */
+        .travellers-section {
+            margin-top: 16px;
+            border: 1px solid #ced4da;
+        }
+
+        .section-title-bar {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 8px 18px;
+            font-size: 9pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .travellers-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+        }
+
+        .travellers-table thead th {
+            background: #f8f9fa;
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .travellers-table tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f3f5;
+            vertical-align: top;
+        }
+
+        .travellers-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .traveller-name {
+            font-weight: 700;
+            font-size: 10.5pt;
+            color: #1a1a2e;
+        }
+
+        .traveller-passport {
+            font-size: 9pt;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .pnr-code {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 10pt;
+            color: #1a1a2e;
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .ticket-code {
+            font-family: 'Courier New', monospace;
+            font-size: 9.5pt;
+            color: #495057;
+        }
+
+        /* ===== NOTES ===== */
+        .notes-section {
+            margin-top: 16px;
+            border: 1px solid #ced4da;
+        }
+
+        .notes-content {
+            padding: 12px 18px;
+            background: #fafbfc;
+        }
+
+        .notes-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notes-list li {
+            position: relative;
+            padding-left: 18px;
+            margin-bottom: 6px;
+            font-size: 9.5pt;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        .notes-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 12pt;
+        }
+
+        .notes-list li strong {
+            color: #1a1a2e;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer-bar {
+            margin-top: 16px;
+            border-top: 1px solid #ced4da;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 8pt;
+            color: #6c757d;
+        }
+
+        .footer-left {
+            max-width: 60%;
+        }
+
+        .footer-right {
+            text-align: right;
+        }
+
+        .footer-gst {
+            font-family: 'Courier New', monospace;
+            color: #495057;
+        }
+
+        /* ===== WRAPPER ===== */
+        .page-wrapper {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 10mm;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <!-- LETTERPAD HEADER -->
+    <div class="letterpad-header">
+        <div class="letterpad-title">Friendly Wings Travel</div>
+        <div class="letterpad-subtitle">International & Domestic Flight Bookings</div>
+        <div class="letterpad-contact">
+            <span>✉ thamizh@friendlywings.com</span>
+            <span>☎ 8098597634, 9488493370</span>
+        </div>
+        <div class="letterpad-gst">GSTIN: 33BVWPT7026F1Z3</div>
+    </div>
+
+    <!-- TICKET HEADER -->
+    <div class="ticket-header">
+        <div class="ticket-label">E-Ticket</div>
+        <div class="trip-id">Trip ID: <strong>FW239871</strong> &nbsp;|&nbsp; Booking Date: 05 May 2026</div>
+    </div>
+
+    <!-- ROUTE STRIP -->
+    <div class="route-strip">
+        <div class="route-cities">
+            CHENNAI <span class="arrow">→</span> DUBAI <span class="arrow">→</span> LONDON
+        </div>
+        <div class="route-date-main">15 MAY 2026</div>
+    </div>
+
+    <!-- SEGMENT 1 -->
+    <div class="segment-card">
+        <div class="segment-header">
+            <div>
+                <span class="segment-number">1</span>
+                <span class="segment-label">Outbound Flight</span>
+            </div>
+            <div class="airline-info">
+                <div class="airline-name">Emirates Airlines</div>
+                <div class="flight-number">Flight EK 543 · Economy Saver</div>
+            </div>
+        </div>
+
+        <div class="timeline-body">
+            <div class="time-block departure">
+                <div class="time-code">MAA</div>
+                <div class="time-value">04:15 AM</div>
+                <div class="time-date">Thu, 15 May 2026</div>
+                <div class="time-airport">
+                    <strong>Chennai International Airport</strong><br>
+                    Terminal 4
+                </div>
+            </div>
+
+            <div class="duration-connector">
+                <div class="plane-icon">✈</div>
+                <div class="duration-line"></div>
+                <div class="duration-text">4h 20m</div>
+                <div class="duration-class">Economy Class</div>
+            </div>
+
+            <div class="time-block arrival">
+                <div class="time-code">DXB</div>
+                <div class="time-value">08:05 AM</div>
+                <div class="time-date">Thu, 15 May 2026</div>
+                <div class="time-airport">
+                    <strong>Dubai International Airport</strong><br>
+                    Terminal 3
+                </div>
+            </div>
+        </div>
+
+        <div class="info-bar">
+            <div><span class="info-label">Baggage:</span> Cabin 7kg | Check-in 30kg per passenger</div>
+            <div><span class="info-label">Meals:</span> Complimentary in-flight meals</div>
+        </div>
+    </div>
+
+    <!-- LAYOVER -->
+    <div class="layover-strip">
+        <span class="layover-text">Layover in Dubai</span>
+        <span class="layover-details">2 hours 45 minutes · Terminal 3</span>
+    </div>
+
+    <!-- SEGMENT 2 -->
+    <div class="segment-card">
+        <div class="segment-header">
+            <div>
+                <span class="segment-number">2</span>
+                <span class="segment-label">Connecting Flight</span>
+            </div>
+            <div class="airline-info">
+                <div class="airline-name">Emirates Airlines</div>
+                <div class="flight-number">Flight EK 001 · Economy Saver</div>
+            </div>
+        </div>
+
+        <div class="timeline-body">
+            <div class="time-block departure">
+                <div class="time-code">DXB</div>
+                <div class="time-value">10:50 AM</div>
+                <div class="time-date">Thu, 15 May 2026</div>
+                <div class="time-airport">
+                    <strong>Dubai International Airport</strong><br>
+                    Terminal 3
+                </div>
+            </div>
+
+            <div class="duration-connector">
+                <div class="plane-icon">✈</div>
+                <div class="duration-line"></div>
+                <div class="duration-text">7h 45m</div>
+                <div class="duration-class">Economy Class</div>
+            </div>
+
+            <div class="time-block arrival">
+                <div class="time-code">LHR</div>
+                <div class="time-value">03:35 PM</div>
+                <div class="time-date">Thu, 15 May 2026</div>
+                <div class="time-airport">
+                    <strong>London Heathrow Airport</strong><br>
+                    Terminal 2
+                </div>
+            </div>
+        </div>
+
+        <div class="info-bar">
+            <div><span class="info-label">Baggage:</span> Cabin 7kg | Check-in 30kg per passenger</div>
+            <div><span class="info-label">Meals:</span> Complimentary in-flight meals</div>
+        </div>
+    </div>
+
+    <!-- TRAVELLERS -->
+    <div class="travellers-section">
+        <div class="section-title-bar">Passenger Details</div>
+        <table class="travellers-table">
+            <thead>
+                <tr>
+                    <th style="width:40%">Passenger Name</th>
+                    <th style="width:25%">Passport</th>
+                    <th style="width:20%">Airline PNR</th>
+                    <th style="width:15%">Ticket No.</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="traveller-name">KRISHNA KUMAR R</div>
+                        <div class="traveller-passport">Adult · Indian National</div>
+                    </td>
+                    <td>
+                        <span class="ticket-code">T7845123</span>
+                    </td>
+                    <td>
+                        <span class="pnr-code">AB12CD</span>
+                    </td>
+                    <td>
+                        <span class="ticket-code">1765432987654</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="traveller-name">GAYATHRI S</div>
+                        <div class="traveller-passport">Adult · Indian National</div>
+                    </td>
+                    <td>
+                        <span class="ticket-code">T5542198</span>
+                    </td>
+                    <td>
+                        <span class="pnr-code">AB12CD</span>
+                    </td>
+                    <td>
+                        <span class="ticket-code">1765432987655</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- NOTES -->
+    <div class="notes-section">
+        <div class="section-title-bar">Important Travel Information</div>
+        <div class="notes-content">
+            <ul class="notes-list">
+                <li><strong>Check-in:</strong> Please arrive at the airport at least <strong>4 hours</strong> before international departure. Check-in counters close 90 minutes prior to departure.</li>
+                <li><strong>Identification:</strong> Carry a valid photo ID and passport (minimum 6 months validity) for check-in and immigration.</li>
+                <li><strong>Visa & Immigration:</strong> Ensure you hold valid visas and immigration clearances for all transit and destination countries.</li>
+                <li><strong>Electronics:</strong> Devices larger than a smartphone must be checked in (except medical devices). Power banks must be carried in hand baggage.</li>
+                <li><strong>Communication:</strong> Use your Trip ID <strong>FW239871</strong> for all booking-related communication.</li>
+                <li><strong>Seat Selection:</strong> Pre-select seats via the airline website using your PNR code to avoid last-minute charges.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-bar">
+        <div class="footer-left">
+            This is a computer-generated e-ticket and does not require a signature.<br>
+            For any assistance, contact us at thamizh@friendlywings.com or call 8098597634, 9488493370
+        </div>
+        <div class="footer-right">
+            <div class="footer-gst">GSTIN: 33BVWPT7026F1Z3</div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

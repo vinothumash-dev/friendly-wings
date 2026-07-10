@@ -1,0 +1,644 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Flight Ticket</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 10.5pt;
+            color: #1a1a2e;
+            line-height: 1.5;
+            background: #fff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .letterpad-header {
+            text-align: center;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #1a1a2e;
+            margin-bottom: 16px;
+        }
+
+        .letterpad-title {
+            font-size: 22pt;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #1a1a2e;
+            text-transform: uppercase;
+        }
+
+        .letterpad-subtitle {
+            font-size: 9pt;
+            color: #6c757d;
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        .letterpad-contact {
+            margin-top: 8px;
+            font-size: 9pt;
+            color: #495057;
+        }
+
+        .letterpad-contact span {
+            margin: 0 12px;
+        }
+
+        .letterpad-gst {
+            font-size: 8.5pt;
+            color: #6c757d;
+            margin-top: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .ticket-header {
+            padding: 10px 0;
+            margin-bottom: 12px;
+        }
+
+        .ticket-header-left {
+            float: left;
+            font-size: 18pt;
+            font-weight: 800;
+            color: #1a1a2e;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .ticket-header-right {
+            float: right;
+            font-size: 10pt;
+            font-weight: 600;
+            color: #495057;
+            text-align: right;
+        }
+
+        .ticket-header-right strong {
+            color: #1a1a2e;
+        }
+
+        .clearfix {
+            clear: both;
+        }
+
+        .route-strip {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 12px 18px;
+            margin-bottom: 0;
+        }
+
+        .route-cities {
+            font-size: 14pt;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            float: left;
+        }
+
+        .route-cities .arrow {
+            color: #adb5bd;
+            margin: 0 6px;
+        }
+
+        .route-date-main {
+            font-size: 11pt;
+            font-weight: 600;
+            float: right;
+        }
+
+        .segment-card {
+            border: 1px solid #ced4da;
+            border-top: none;
+            background: #fff;
+            margin-bottom: 0;
+        }
+
+        .segment-header {
+            background: #f8f9fa;
+            padding: 8px 18px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .segment-header-left {
+            float: left;
+        }
+
+        .segment-header-right {
+            float: right;
+            text-align: right;
+        }
+
+        .segment-label {
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6c757d;
+        }
+
+        .segment-number {
+            background: #1a1a2e;
+            color: #fff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            text-align: center;
+            font-size: 9pt;
+            font-weight: 700;
+            line-height: 20px;
+            margin-right: 6px;
+        }
+
+        .airline-name {
+            font-weight: 700;
+            font-size: 10pt;
+            color: #1a1a2e;
+        }
+
+        .flight-number {
+            font-size: 9pt;
+            color: #6c757d;
+        }
+
+        .timeline-body {
+            padding: 16px 18px;
+        }
+
+        .time-block {
+            width: 32%;
+            display: inline-block;
+            vertical-align: top;
+            text-align: center;
+            padding: 0 6px;
+        }
+
+        .time-block.departure {
+            text-align: left;
+            padding-left: 0;
+        }
+
+        .time-block.arrival {
+            text-align: right;
+            padding-right: 0;
+        }
+
+        .time-code {
+            font-size: 20pt;
+            font-weight: 800;
+            color: #1a1a2e;
+            line-height: 1;
+        }
+
+        .time-value {
+            font-size: 12pt;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-top: 4px;
+        }
+
+        .time-date {
+            font-size: 9pt;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .time-airport {
+            font-size: 9pt;
+            color: #495057;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .time-airport strong {
+            color: #1a1a2e;
+        }
+
+        .duration-connector {
+            width: 30%;
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+            padding: 0 8px;
+            position: relative;
+        }
+
+        .duration-line {
+            width: 100%;
+            height: 2px;
+            background: #ced4da;
+            position: relative;
+            margin-bottom: 6px;
+            margin-top: 12px;
+        }
+
+        .duration-text {
+            font-size: 10pt;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .duration-class {
+            font-size: 8pt;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .plane-icon {
+            font-size: 12pt;
+            color: #495057;
+            margin-bottom: 2px;
+        }
+
+        .info-bar {
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding: 8px 18px;
+            font-size: 9pt;
+            color: #495057;
+        }
+
+        .info-bar-left {
+            float: left;
+        }
+
+        .info-bar-right {
+            float: right;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .layover-strip {
+            background: #fff8e1;
+            border-left: 3px solid #ffc107;
+            border-right: 1px solid #ced4da;
+            border-bottom: 1px solid #ced4da;
+            padding: 8px 18px;
+            font-size: 10pt;
+            color: #856404;
+        }
+
+        .layover-text {
+            font-weight: 600;
+        }
+
+        .layover-details {
+            font-size: 9pt;
+            color: #a08030;
+            margin-left: 8px;
+        }
+
+        .travellers-section {
+            margin-top: 16px;
+            border: 1px solid #ced4da;
+        }
+
+        .section-title-bar {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 8px 18px;
+            font-size: 9pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .travellers-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+        }
+
+        .travellers-table thead th {
+            background: #f8f9fa;
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .travellers-table tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f3f5;
+            vertical-align: top;
+        }
+
+        .travellers-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .traveller-name {
+            font-weight: 700;
+            font-size: 10.5pt;
+            color: #1a1a2e;
+        }
+
+        .traveller-passport {
+            font-size: 9pt;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .pnr-code {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 10pt;
+            color: #1a1a2e;
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .ticket-code {
+            font-family: 'Courier New', monospace;
+            font-size: 9.5pt;
+            color: #495057;
+        }
+
+        .notes-section {
+            margin-top: 16px;
+            border: 1px solid #ced4da;
+        }
+
+        .notes-content {
+            padding: 12px 18px;
+            background: #fafbfc;
+        }
+
+        .notes-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notes-list li {
+            position: relative;
+            padding-left: 18px;
+            margin-bottom: 6px;
+            font-size: 9.5pt;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        .notes-list li::before {
+            content: '\2022';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 12pt;
+        }
+
+        .notes-list li strong {
+            color: #1a1a2e;
+        }
+
+        .footer-bar {
+            margin-top: 16px;
+            border-top: 1px solid #ced4da;
+            padding-top: 10px;
+            font-size: 8pt;
+            color: #6c757d;
+        }
+
+        .footer-left {
+            float: left;
+            max-width: 60%;
+        }
+
+        .footer-right {
+            float: right;
+            text-align: right;
+        }
+
+        .footer-gst {
+            font-family: 'Courier New', monospace;
+            color: #495057;
+        }
+
+        .page-wrapper {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 10mm;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <!-- LETTERPAD HEADER -->
+    <div class="letterpad-header">
+        <div class="letterpad-title">Friendly Wings Travel</div>
+        <div class="letterpad-subtitle">International &amp; Domestic Flight Bookings</div>
+        <div class="letterpad-contact">
+            <span>&#9993; thamizh@friendlywings.com</span>
+            <span>&#9742; 8098597634, 9488493370</span>
+        </div>
+        <div class="letterpad-gst">GSTIN: 33BVWPT7026F1Z3</div>
+    </div>
+
+    <!-- TICKET HEADER -->
+    <div class="ticket-header">
+        <div class="ticket-header-left">E-Ticket</div>
+        <div class="ticket-header-right">
+            Trip ID: <strong>$!tripId</strong>
+            #if($travelDate && $travelDate != "")
+            &nbsp;|&nbsp; Travel Date: $travelDate
+            #end
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+    <!-- ROUTE STRIP -->
+    <div class="route-strip">
+        <div class="route-cities">
+            $!route
+        </div>
+        <div class="route-date-main">
+            $!travelDate
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+    <!-- SEGMENTS -->
+    #foreach($seg in $segments)
+    <div class="segment-card">
+        <div class="segment-header">
+            <div class="segment-header-left">
+                <span class="segment-number">$foreach.count</span>
+                <span class="segment-label">
+                    #if($foreach.count == 1)
+                        Outbound Flight
+                    #elseif($foreach.count == $segments.size())
+                        Connecting Flight
+                    #else
+                        Connecting Flight
+                    #end
+                </span>
+            </div>
+            <div class="segment-header-right">
+                <div class="airline-name">$!seg.airline</div>
+                <div class="flight-number">Flight $!seg.flightNumber
+                    #if($seg.fareType && $seg.fareType != "") &middot; $seg.fareType #end
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="timeline-body">
+            <div class="time-block departure">
+                <div class="time-code">$!seg.departureAirportCode</div>
+                <div class="time-value">$!seg.departureTime</div>
+                <div class="time-date">$!seg.departureDate</div>
+                <div class="time-airport">
+                    <strong>$!seg.departureAirportName</strong><br />
+                    #if($seg.departureTerminal && $seg.departureTerminal != "")
+                    Terminal $seg.departureTerminal
+                    #end
+                </div>
+            </div>
+
+            <div class="duration-connector">
+                <div class="plane-icon">&#9992;</div>
+                <div class="duration-line"></div>
+                <div class="duration-text">$!seg.duration</div>
+                <div class="duration-class">$!seg.travelClass</div>
+            </div>
+
+            <div class="time-block arrival">
+                <div class="time-code">$!seg.arrivalAirportCode</div>
+                <div class="time-value">$!seg.arrivalTime</div>
+                <div class="time-date">$!seg.arrivalDate</div>
+                <div class="time-airport">
+                    <strong>$!seg.arrivalAirportName</strong><br />
+                    #if($seg.arrivalTerminal && $seg.arrivalTerminal != "")
+                    Terminal $seg.arrivalTerminal
+                    #end
+                </div>
+            </div>
+        </div>
+
+        <div class="info-bar">
+            <div class="info-bar-left">
+                <span class="info-label">Baggage:</span> $!seg.baggage
+            </div>
+            <div class="info-bar-right">
+                #if($seg.operatedBy && $seg.operatedBy != "")
+                <span class="info-label">Operated By:</span> $seg.operatedBy
+                #end
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+
+    <!-- LAYOVER (if not last segment) -->
+    #if($seg.layover && $seg.layover != "" && $foreach.count < $segments.size())
+    <div class="layover-strip">
+        <span class="layover-text">Layover</span>
+        <span class="layover-details">$seg.layover</span>
+    </div>
+    #end
+    #end
+
+    <!-- TRAVELLERS -->
+    #if($travellers && $travellers.size() > 0)
+    <div class="travellers-section">
+        <div class="section-title-bar">Passenger Details</div>
+        <table class="travellers-table">
+            <thead>
+                <tr>
+                    <th style="width:40%">Passenger Name</th>
+                    <th style="width:25%">Passport</th>
+                    <th style="width:20%">Airline PNR</th>
+                    <th style="width:15%">Ticket No.</th>
+                </tr>
+            </thead>
+            <tbody>
+                #foreach($traveller in $travellers)
+                <tr>
+                    <td>
+                        <div class="traveller-name">$!traveller.name</div>
+                        <div class="traveller-passport">Adult</div>
+                    </td>
+                    <td>
+                        #if($traveller.passportNumber && $traveller.passportNumber != "")
+                        <span class="ticket-code">$traveller.passportNumber</span>
+                        #else
+                        <span class="ticket-code">-</span>
+                        #end
+                    </td>
+                    <td>
+                        #if($traveller.pnr && $traveller.pnr != "")
+                        <span class="pnr-code">$traveller.pnr</span>
+                        #else
+                        <span class="pnr-code">-</span>
+                        #end
+                    </td>
+                    <td>
+                        #if($traveller.ticketNumber && $traveller.ticketNumber != "")
+                        <span class="ticket-code">$traveller.ticketNumber</span>
+                        #else
+                        <span class="ticket-code">-</span>
+                        #end
+                    </td>
+                </tr>
+                #end
+            </tbody>
+        </table>
+    </div>
+    #end
+
+    <!-- NOTES -->
+    <div class="notes-section">
+        <div class="section-title-bar">Important Travel Information</div>
+        <div class="notes-content">
+            <ul class="notes-list">
+                <li><strong>Check-in:</strong> Please arrive at the airport at least <strong>4 hours</strong> before international departure. Check-in counters close 90 minutes prior to departure.</li>
+                <li><strong>Identification:</strong> Carry a valid photo ID and passport (minimum 6 months validity) for check-in and immigration.</li>
+                <li><strong>Visa &amp; Immigration:</strong> Ensure you hold valid visas and immigration clearances for all transit and destination countries.</li>
+                <li><strong>Electronics:</strong> Devices larger than a smartphone must be checked in (except medical devices). Power banks must be carried in hand baggage.</li>
+                <li><strong>Communication:</strong> Use your Trip ID <strong>$!tripId</strong> for all booking-related communication.</li>
+                <li><strong>Seat Selection:</strong> Pre-select seats via the airline website using your PNR code to avoid last-minute charges.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-bar">
+        <div class="footer-left">
+            This is a computer-generated e-ticket and does not require a signature.<br />
+            For any assistance, contact us at thamizh@friendlywings.com or call 8098597634, 9488493370
+        </div>
+        <div class="footer-right">
+            <div class="footer-gst">GSTIN: 33BVWPT7026F1Z3</div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+</div>
+
+</body>
+</html>

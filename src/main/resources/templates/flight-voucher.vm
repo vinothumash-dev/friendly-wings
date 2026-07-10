@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11pt;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        .header-company {
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        .header-contact {
+            font-size: 10pt;
+            color: #0000EE;
+        }
+        .trip-row {
+            margin-bottom: 10px;
+        }
+        .ticket-label {
+            font-size: 28pt;
+            font-weight: bold;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .trip-id {
+            font-size: 14pt;
+            font-weight: bold;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 20px;
+        }
+        .route-bar {
+            background-color: #e6e6e6;
+            border: 1px solid #000;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+        .route-text {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        .route-date {
+            float: right;
+            font-size: 12pt;
+        }
+        .segment-box {
+            border: 1px solid #000;
+            margin-bottom: 8px;
+        }
+        .segment-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .segment-table td {
+            padding: 8px;
+            vertical-align: top;
+        }
+        .segment-airline {
+            width: 25%;
+            font-size: 10pt;
+        }
+        .segment-dep {
+            width: 30%;
+            text-align: center;
+            font-size: 10pt;
+        }
+        .segment-dur {
+            width: 15%;
+            text-align: center;
+            font-size: 9pt;
+        }
+        .segment-arr {
+            width: 30%;
+            text-align: center;
+            font-size: 10pt;
+        }
+        .baggage-bar {
+            border-top: 1px solid #000;
+            padding: 6px 8px;
+            font-size: 9pt;
+        }
+        .layover-bar {
+            background-color: #e6e6e6;
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: center;
+            font-size: 10pt;
+            margin-bottom: 8px;
+        }
+        .travellers-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        .travellers-table th {
+            background-color: #e6e6e6;
+            border: 1px solid #000;
+            padding: 6px;
+            font-size: 11pt;
+            font-weight: bold;
+            text-align: center;
+        }
+        .travellers-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            font-size: 10pt;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .travellers-table td.name-cell {
+            text-align: left;
+        }
+        .notes-title {
+            font-size: 11pt;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .notes-list {
+            font-size: 9pt;
+            margin: 0;
+            padding-left: 15px;
+        }
+        .notes-list li {
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-company">FRIENDLY WINGS TRAVEL COMPANY</div>
+    <div class="header-contact">Email : friendlywings123@gmail.com</div>
+    <div class="header-contact">Ph no : +91 8098597634</div>
+</div>
+
+<div class="trip-row">
+    <span class="ticket-label">ticket</span>
+    <span class="trip-id">Trip ID : #if($tripId)$tripId#{else}__________#end</span>
+</div>
+
+<div class="route-bar">
+    <span class="route-text">#if($route)$route#{else}#end</span>
+    <span class="route-date">#if($travelDate)$travelDate#{else}#end</span>
+    <div style="clear:both;"></div>
+</div>
+
+#if($segments)
+#foreach($seg in $segments)
+<div class="segment-box">
+    <table class="segment-table">
+        <tr>
+            <td class="segment-airline">
+                #if($seg.airline)<div><strong>$seg.airline</strong></div>#end
+                #if($seg.operatedBy)<div>Operated by $seg.operatedBy</div>#end
+                #if($seg.flightNumber)<div>$seg.flightNumber</div>#end
+                #if($seg.fareType)<div>Fare type: $seg.fareType</div>#end
+            </td>
+            <td class="segment-dep">
+                #if($seg.departureAirportCode)<strong>$seg.departureAirportCode</strong>#end
+                #if($seg.departureTime) $seg.departureTime#end<br />
+                #if($seg.departureDate)$seg.departureDate<br />#end
+                #if($seg.departureAirportName)$seg.departureAirportName#end
+                #if($seg.departureTerminal) - Terminal $seg.departureTerminal#end
+            </td>
+            <td class="segment-dur">
+                #if($seg.duration)$seg.duration<br />#end
+                #if($seg.travelClass)$seg.travelClass#end
+            </td>
+            <td class="segment-arr">
+                #if($seg.arrivalTime)<strong>$seg.arrivalTime</strong>#end
+                #if($seg.arrivalAirportCode) $seg.arrivalAirportCode<br />#end
+                #if($seg.arrivalDate)$seg.arrivalDate<br />#end
+                #if($seg.arrivalAirportName)$seg.arrivalAirportName#end
+                #if($seg.arrivalTerminal) - Terminal $seg.arrivalTerminal#end
+            </td>
+        </tr>
+    </table>
+    #if($seg.baggage)
+    <div class="baggage-bar">Baggage (per Adult/Child) – $seg.baggage</div>
+    #end
+</div>
+
+#if($seg.layover)
+<div class="layover-bar">$seg.layover</div>
+#end
+#end
+#end
+
+<table class="travellers-table">
+    <tr>
+        <th style="width:50%">TRAVELLERS</th>
+        <th style="width:25%">AIRLINE PNR</th>
+        <th style="width:25%">TICKET NO.</th>
+    </tr>
+    #if($travellers)
+    #foreach($t in $travellers)
+    <tr>
+        <td class="name-cell">
+            #if($t.name)$t.name#end<br /><br />
+            #if($t.passportNumber)Passport no. $t.passportNumber#end
+        </td>
+        <td>#if($t.pnr)$t.pnr#end</td>
+        <td>#if($t.ticketNumber)$t.ticketNumber#end</td>
+    </tr>
+    #end
+    #else
+    <tr>
+        <td class="name-cell">&nbsp;</td>
+        <td>#if($pnr)$pnr#end</td>
+        <td>&nbsp;</td>
+    </tr>
+    #end
+</table>
+
+<div class="notes-title">ABOUT THIS TRIP</div>
+<ul class="notes-list">
+    <li>Note: Except for medical devices, electronic devices which are larger than a cell phone/smart phone cannot be carried in the cabin of the aircraft.</li>
+    <li>Use your Trip ID for all communication with about this booking</li>
+    <li>Please reach the airport 4 hours before the departure time. Check-in counters at the airport close 90 minutes before departure</li>
+    <li>Carry photo identification, you will need it as proof of identity while checking-in</li>
+    <li>Kindly ensure that you have the relevant visa, immigration clearance and travel with a passport, with a validity of at least 6 months.</li>
+</ul>
+
+</body>
+</html>

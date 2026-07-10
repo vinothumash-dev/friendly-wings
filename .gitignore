@@ -1,0 +1,25 @@
+# Maven build output
+target/
+
+# Logs
+*.log
+app.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Output directory
+output/
+
+# Email attachment PDFs (binary files, not source)
+*.pdf
+
+# Temp files
+cp.txt
+
+# IDE
+.idea/
+*.iml
+.vscode/
