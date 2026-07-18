@@ -23,7 +23,7 @@ friendlywings:
     username: vinothumash@gmail.com
     # Use Gmail App Password - NOT your regular password
     # Generate at: https://myaccount.google.com/apppasswords
-    password: 
+    password: qifl asrg vaxw iman
     host: imap.gmail.com
     port: 993
     protocol: imaps
@@ -37,6 +37,18 @@ friendlywings:
   output:
     # Where generated PDFs are saved
     directory: ./output
+
+  openai:
+    # OpenAI API key - set via OPENAI_API_KEY environment variable
+    api-key: ${OPENAI_API_KEY}
+    # Model to use for PDF parsing (gpt-5.5, gpt-5.5-instant, gpt-4o, gpt-4o-mini)
+    model: gpt-5.5
+    # API endpoint
+    base-url: https://api.openai.com/v1
+    # Maximum tokens for the response
+    max-tokens: 4000
+    # Temperature: lower = more deterministic
+    temperature: 0.1
 
   smtp:
     # SMTP settings for sending voucher emails

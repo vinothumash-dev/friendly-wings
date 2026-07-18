@@ -1,20 +1,22 @@
 package com.friendlywings.automation.controller;
 
-import com.friendlywings.automation.model.FlightBooking;
-import com.friendlywings.automation.model.FlightSegment;
+import com.friendlywings.automation.model.FlightItinerary;
 import com.friendlywings.automation.model.HotelBooking;
-import com.friendlywings.automation.model.Traveller;
+import com.friendlywings.automation.model.Layover;
+import com.friendlywings.automation.model.Passenger;
+import com.friendlywings.automation.model.Route;
+import com.friendlywings.automation.model.Trip;
+import com.friendlywings.automation.parser.FlightTicketPdfParser;
 import com.friendlywings.automation.pdf.velocity.VelocityFlightPdfGenerator;
 import com.friendlywings.automation.pdf.velocity.VelocityHotelPdfGenerator;
 import com.friendlywings.automation.repository.ProcessedEmail;
 import com.friendlywings.automation.repository.ProcessedEmailRepository;
-import com.friendlywings.automation.parser.EmailParser;
-import com.friendlywings.automation.parser.ProviderParserTemplate;
 import com.friendlywings.automation.service.BookingProcessingService;
 import com.friendlywings.automation.service.EmailNotificationService;
 import com.friendlywings.automation.service.GmailImapService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -34,7 +36,7 @@ public class BookingController {
     private final VelocityHotelPdfGenerator hotelPdfGenerator;
     private final GmailImapService gmailService;
     private final EmailNotificationService emailNotificationService;
-    private final List<EmailParser> parsers;
+    private final FlightTicketPdfParser ticketParser;
 
     public BookingController(BookingProcessingService processingService,
                              ProcessedEmailRepository repository,
@@ -42,14 +44,14 @@ public class BookingController {
                              VelocityHotelPdfGenerator hotelPdfGenerator,
                              GmailImapService gmailService,
                              EmailNotificationService emailNotificationService,
-                             List<EmailParser> parsers) {
+                             FlightTicketPdfParser ticketParser) {
         this.processingService = processingService;
         this.repository = repository;
         this.flightPdfGenerator = flightPdfGenerator;
         this.hotelPdfGenerator = hotelPdfGenerator;
         this.gmailService = gmailService;
         this.emailNotificationService = emailNotificationService;
-        this.parsers = parsers;
+        this.ticketParser = ticketParser;
     }
 
     @PostMapping("/process")
@@ -86,20 +88,9 @@ public class BookingController {
         return ResponseEntity.ok(html);
     }
 
-    @PostMapping("/debug/test-parser")
-    public ResponseEntity<?> testParser(@RequestParam String provider, @RequestBody String html) {
-        String providerLower = provider.toLowerCase();
-        for (EmailParser parser : parsers) {
-            String parserName = parser.getClass().getSimpleName().toLowerCase();
-            if (parserName.contains(providerLower)) {
-                if (parser instanceof ProviderParserTemplate<?> templateParser) {
-                    var booking = templateParser.parseHtml(html);
-                    return ResponseEntity.ok(booking);
-                }
-                return ResponseEntity.badRequest().body(Map.of("error", "Parser is not a ProviderParserTemplate: " + parser.getClass().getSimpleName()));
-            }
-        }
-        return ResponseEntity.badRequest().body(Map.of("error", "No parser found matching: " + provider));
+    @PostMapping("/debug/test-pdf-parser")
+    public ResponseEntity<FlightItinerary> testPdfParser(@RequestParam("file") MultipartFile file) throws IOException {
+        return ResponseEntity.ok(ticketParser.parsePdf(file.getInputStream()));
     }
 
     @GetMapping("/status")
@@ -109,9 +100,9 @@ public class BookingController {
 
     @PostMapping("/demo/flight")
     public ResponseEntity<Map<String, String>> generateDemoFlight() throws IOException {
-        FlightBooking booking = createSampleFlightBooking();
+        FlightItinerary booking = createSampleFlightItinerary();
         Path path = flightPdfGenerator.generate(booking);
-        emailNotificationService.sendVoucher(path, booking.getBookingType(), booking.getTripId());
+        emailNotificationService.sendVoucher(path, booking.getBookingType(), booking.getBookingId());
         Map<String, String> resp = new HashMap<>();
         resp.put("status", "Generated and emailed");
         resp.put("path", path.toString());
@@ -120,9 +111,9 @@ public class BookingController {
 
     @PostMapping("/demo/flight-v1")
     public ResponseEntity<Map<String, String>> generateDemoFlightV1() throws IOException {
-        FlightBooking booking = createSampleFlightBooking();
+        FlightItinerary booking = createSampleFlightItinerary();
         Path path = flightPdfGenerator.generateV1(booking);
-        emailNotificationService.sendVoucher(path, booking.getBookingType(), booking.getTripId());
+        emailNotificationService.sendVoucher(path, booking.getBookingType(), booking.getBookingId());
         Map<String, String> resp = new HashMap<>();
         resp.put("status", "Generated V1 and emailed");
         resp.put("path", path.toString());
@@ -151,18 +142,22 @@ public class BookingController {
         return ResponseEntity.ok(resp);
     }
 
-    private FlightBooking createSampleFlightBooking() {
-        FlightBooking b = new FlightBooking();
-        b.setTripId("26012732210");
-        b.setRoute("Rio de Janeiro to Doha");
-        b.setTravelDate(LocalDate.of(2026, 1, 29));
+    private FlightItinerary createSampleFlightItinerary() {
+        FlightItinerary b = new FlightItinerary();
+        b.setBookingId("26012732210");
         b.setPnr("78C7UV");
 
-        FlightSegment seg1 = new FlightSegment();
+        Trip trip = new Trip();
+        trip.setOriginCity("Rio de Janeiro");
+        trip.setDestinationCity("Doha");
+        trip.setTripDate(LocalDate.of(2026, 1, 29));
+        trip.setTotalDuration("19h");
+
+        Route seg1 = new Route();
         seg1.setAirline("Qatar Airways");
-        seg1.setOperatedBy("TAM\nLinhas Aereas");
+        seg1.setOperatedBy("TAM Linhas Aereas");
         seg1.setFlightNumber("JJ - 7296");
-        seg1.setFareType("ECONOMY\nCONVENIENCE");
+        seg1.setFareType("ECONOMY CONVENIENCE");
         seg1.setDepartureAirportCode("GIG");
         seg1.setDepartureTime(LocalTime.of(13, 55));
         seg1.setDepartureDate(LocalDate.of(2026, 1, 29));
@@ -175,14 +170,18 @@ public class BookingController {
         seg1.setArrivalDate(LocalDate.of(2026, 1, 29));
         seg1.setArrivalAirportName("Sao Paulo - Guarulhos");
         seg1.setArrivalTerminal("Terminal 2");
-        seg1.setBaggage("Check-in: 46kg, Cabin: 12kg");
-        seg1.setLayover("Long layover : 5h 20min");
-        b.getSegments().add(seg1);
+        seg1.setCabinBaggage("12kg");
+        seg1.setCheckInBaggage("46kg");
+        Layover layover1 = new Layover();
+        layover1.setDuration("5h 20min");
+        layover1.setAirportCode("GRU");
+        seg1.setLayover(layover1);
+        trip.getRoutes().add(seg1);
 
-        FlightSegment seg2 = new FlightSegment();
+        Route seg2 = new Route();
         seg2.setAirline("Qatar Airways");
         seg2.setFlightNumber("QR - 780");
-        seg2.setFareType("ECONOMY\nCONVENIENCE");
+        seg2.setFareType("ECONOMY CONVENIENCE");
         seg2.setDepartureAirportCode("GRU");
         seg2.setDepartureTime(LocalTime.of(20, 25));
         seg2.setDepartureDate(LocalDate.of(2026, 1, 29));
@@ -194,34 +193,19 @@ public class BookingController {
         seg2.setArrivalTime(LocalTime.of(15, 55));
         seg2.setArrivalDate(LocalDate.of(2026, 1, 30));
         seg2.setArrivalAirportName("Doha - Hamad International Airport");
-        seg2.setBaggage("Check-in: 46kg, Cabin: 12kg");
-        seg2.setLayover("Long layover : 5h 20min");
-        b.getSegments().add(seg2);
+        seg2.setCabinBaggage("12kg");
+        seg2.setCheckInBaggage("46kg");
+        trip.getRoutes().add(seg2);
 
-        FlightSegment seg3 = new FlightSegment();
-        seg3.setAirline("Qatar Airways");
-        seg3.setFlightNumber("QR - 780");
-        seg3.setFareType("ECONOMY\nCONVENIENCE");
-        seg3.setDepartureAirportCode("GRU");
-        seg3.setDepartureTime(LocalTime.of(20, 25));
-        seg3.setDepartureDate(LocalDate.of(2026, 1, 29));
-        seg3.setDepartureAirportName("Sao Paulo - Guarulhos");
-        seg3.setDepartureTerminal("Terminal 3");
-        seg3.setDuration("13h 30min");
-        seg3.setTravelClass("Economy");
-        seg3.setArrivalAirportCode("DOH");
-        seg3.setArrivalTime(LocalTime.of(15, 55));
-        seg3.setArrivalDate(LocalDate.of(2026, 1, 30));
-        seg3.setArrivalAirportName("Doha - Hamad International Airport");
-        seg3.setBaggage("Check-in: 46kg, Cabin: 12kg");
-        b.getSegments().add(seg3);
+        b.getTrips().add(trip);
 
-        Traveller t = new Traveller();
+        Passenger t = new Passenger();
         t.setName("Mr Claudio Eustaquio");
         t.setPnr("78C7UV");
         t.setTicketNumber("1575012847089");
         t.setPassportNumber("GB715187");
-        b.getTravellers().add(t);
+        t.setType("ADULT");
+        b.getPassengers().add(t);
 
         return b;
     }

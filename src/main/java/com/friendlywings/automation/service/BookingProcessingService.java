@@ -2,9 +2,8 @@ package com.friendlywings.automation.service;
 
 import com.friendlywings.automation.config.FriendlyWingsProperties;
 import com.friendlywings.automation.model.Booking;
-import com.friendlywings.automation.model.FlightBooking;
-import com.friendlywings.automation.parser.BookingSource;
-import com.friendlywings.automation.parser.EmailParser;
+import com.friendlywings.automation.model.FlightItinerary;
+import com.friendlywings.automation.parser.FlightTicketPdfParser;
 import com.friendlywings.automation.pdf.PdfGenerator;
 import com.friendlywings.automation.repository.ProcessedEmail;
 import com.friendlywings.automation.repository.ProcessedEmailRepository;
@@ -25,23 +24,20 @@ public class BookingProcessingService {
     private static final Logger log = LoggerFactory.getLogger(BookingProcessingService.class);
 
     private final GmailImapService gmailService;
-    private final EmailClassifier classifier;
-    private final List<EmailParser> parsers;
+    private final FlightTicketPdfParser ticketParser;
     private final List<PdfGenerator<? extends Booking>> generators;
     private final ProcessedEmailRepository repository;
     private final FriendlyWingsProperties properties;
     private final EmailNotificationService emailNotificationService;
 
     public BookingProcessingService(GmailImapService gmailService,
-                                    EmailClassifier classifier,
-                                    List<EmailParser> parsers,
+                                    FlightTicketPdfParser ticketParser,
                                     List<PdfGenerator<? extends Booking>> generators,
                                     ProcessedEmailRepository repository,
                                     FriendlyWingsProperties properties,
                                     EmailNotificationService emailNotificationService) {
         this.gmailService = gmailService;
-        this.classifier = classifier;
-        this.parsers = parsers;
+        this.ticketParser = ticketParser;
         this.generators = generators;
         this.repository = repository;
         this.properties = properties;
@@ -96,41 +92,40 @@ public class BookingProcessingService {
                 return;
             }
 
-            BookingSource source = classifier.classify(message);
-            log.info("Classified email {} as source: {}", messageId, source);
-
-            if (source == BookingSource.UNKNOWN) {
-                log.warn("Unknown source for email: {}", message.getSubject());
-                saveStatus(messageId, message, null, null, ProcessedEmail.Status.SKIPPED, "Unknown source");
+            if (!ticketParser.canParse(message)) {
+                log.info("Skipping email without PDF attachment: {}", message.getSubject());
+                saveStatus(messageId, message, null, null, ProcessedEmail.Status.SKIPPED, "No PDF attachment");
                 return;
             }
 
-            EmailParser parser = findParser(message);
-            if (parser == null) {
-                log.warn("No parser found for email: {}", message.getSubject());
-                saveStatus(messageId, message, source.name(), null, ProcessedEmail.Status.SKIPPED, "No parser available");
-                return;
-            }
-
-            booking = parser.parse(message);
+            booking = ticketParser.parse(message);
             if (booking == null) {
-                saveStatus(messageId, message, source.name(), null, ProcessedEmail.Status.PARSE_ERROR, "Parser returned null");
+                saveStatus(messageId, message, null, null, ProcessedEmail.Status.PARSE_ERROR, "Parser returned null");
+                return;
+            }
+
+            if (booking instanceof FlightItinerary itinerary && itinerary.getTrips().isEmpty()) {
+                log.info("PDF attachment is not a flight ticket, skipping: {}", message.getSubject());
+                saveStatus(messageId, message, booking.getSource(), booking.getBookingType(),
+                        ProcessedEmail.Status.SKIPPED, "Not a flight ticket PDF");
                 return;
             }
 
             PdfGenerator generator = findGenerator(booking);
             if (generator == null) {
-                saveStatus(messageId, message, source.name(), booking.getBookingType(), ProcessedEmail.Status.PDF_ERROR, "No PDF generator");
+                saveStatus(messageId, message, booking.getSource(), booking.getBookingType(),
+                        ProcessedEmail.Status.PDF_ERROR, "No PDF generator");
                 return;
             }
 
             pdfPath = generator.generate(booking);
             log.info("Generated PDF: {}", pdfPath);
 
-            saveStatus(messageId, message, source.name(), booking.getBookingType(), pdfPath.toString(), ProcessedEmail.Status.SUCCESS, null);
+            saveStatus(messageId, message, booking.getSource(), booking.getBookingType(),
+                    pdfPath.toString(), ProcessedEmail.Status.SUCCESS, null);
 
             // Send email notification with PDF attachment
-            String tripId = (booking instanceof FlightBooking fb) ? fb.getTripId() : null;
+            String tripId = (booking instanceof FlightItinerary fi) ? fi.getBookingId() : null;
             emailNotificationService.sendVoucher(pdfPath, booking.getBookingType(), tripId);
 
             gmailService.markAsProcessed(message);
@@ -153,15 +148,6 @@ public class BookingProcessingService {
         for (PdfGenerator<? extends Booking> gen : generators) {
             if (gen.supports(booking)) {
                 return (PdfGenerator<Booking>) gen;
-            }
-        }
-        return null;
-    }
-
-    private EmailParser findParser(Message message) throws MessagingException {
-        for (EmailParser parser : parsers) {
-            if (parser.canParse(message)) {
-                return parser;
             }
         }
         return null;

@@ -23,3 +23,6 @@ cp.txt
 .idea/
 *.iml
 .vscode/
+
+# Python virtual environment (legacy)
+.venv/

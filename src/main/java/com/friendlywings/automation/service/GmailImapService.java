@@ -3,6 +3,7 @@ package com.friendlywings.automation.service;
 import com.friendlywings.automation.config.FriendlyWingsProperties;
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.*;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.search.AndTerm;
 import jakarta.mail.search.ComparisonTerm;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -122,6 +124,63 @@ public class GmailImapService {
             return extractTextFromMultipart(multipart);
         }
         return "";
+    }
+
+    /** Cheap check whether the message carries a PDF attachment, without reading its bytes. */
+    public boolean hasPdfAttachment(Message message) throws MessagingException, IOException {
+        Object content = message.getContent();
+        return content instanceof MimeMultipart multipart && containsPdf(multipart);
+    }
+
+    private boolean containsPdf(MimeMultipart multipart) throws MessagingException, IOException {
+        for (int i = 0; i < multipart.getCount(); i++) {
+            BodyPart part = multipart.getBodyPart(i);
+            if (part.isMimeType("application/pdf")
+                    || (part.getFileName() != null && part.getFileName().toLowerCase().endsWith(".pdf"))) {
+                return true;
+            }
+            if (part.getContent() instanceof MimeMultipart inner && containsPdf(inner)) {
+                return true;
+            }
+            if (part.isMimeType("message/rfc822") && part.getContent() instanceof Message nested
+                    && hasPdfAttachment(nested)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public InputStream extractPdfAttachment(Message message) throws MessagingException, IOException {
+        Object content = message.getContent();
+        if (content instanceof MimeMultipart multipart) {
+            return findPdfAttachment(multipart);
+        }
+        return null;
+    }
+
+    private InputStream findPdfAttachment(MimeMultipart multipart) throws MessagingException, IOException {
+        for (int i = 0; i < multipart.getCount(); i++) {
+            BodyPart part = multipart.getBodyPart(i);
+            if (part.isMimeType("application/pdf") || (part.getFileName() != null && part.getFileName().toLowerCase().endsWith(".pdf"))) {
+                return part.getInputStream();
+            }
+            if (part.getContent() instanceof MimeMultipart inner) {
+                InputStream found = findPdfAttachment(inner);
+                if (found != null) {
+                    return found;
+                }
+            }
+            if (part.isMimeType("message/rfc822")) {
+                Object nested = part.getContent();
+                if (nested instanceof Message nestedMsg) {
+                    InputStream found = extractPdfAttachment(nestedMsg);
+                    if (found != null) {
+                        return found;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private String extractTextFromMultipart(MimeMultipart multipart) throws MessagingException, IOException {
